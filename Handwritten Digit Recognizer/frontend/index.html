@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hando - Digit Recognizer</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0f0f1a;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 20px 30px;
+      background: #1a1a2e;
+      box-shadow: 0 2px 10px rgba(128, 0, 128, 0.3);
+    }
+
+    header img {
+      height: 40px;
+      margin-right: 15px;
+    }
+
+    header h1 {
+      color: #c77dff;
+      font-size: 24px;
+      margin: 0;
+    }
+
+    h2 {
+      margin-top: 20px;
+      color: #e0aaff;
+    }
+
+    .container {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    canvas {
+      background-color: #fff;
+      border: 3px solid #a855f7;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+      cursor: crosshair;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+    }
+
+    button {
+      background: linear-gradient(to right, #6a0dad, #9f44d3);
+      color: white;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    #result {
+      font-size: 28px;
+      color: #c77dff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVdfqngRHyKcccODlspFIgAzWIOUEBJUZDjw&s" alt="logo">
+    <h1>Hando</h1>
+  </header>
+
+  <div class="container">
+    <h2>Draw a digit (0–9) below</h2>
+    <canvas id="canvas" width="280" height="280"></canvas>
+    <div class="buttons">
+      <button onclick="predict()">Predict</button>
+      <button onclick="clearCanvas()">Clear</button>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    // Fill background white
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    let isDrawing = false;
+
+    canvas.addEventListener("mousedown", () => isDrawing = true);
+    canvas.addEventListener("mouseup", () => isDrawing = false);
+    canvas.addEventListener("mousemove", draw);
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ctx.fillStyle = "black";
+      ctx.beginPath();
+      ctx.arc(x, y, 12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function clearCanvas() {
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      document.getElementById("result").innerText = "";
+    }
+
+    async function predict() {
+      const resultDiv = document.getElementById("result");
+
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      const formData = new FormData();
+      formData.append("image", blob, "canvas.png");
+
+      try {
+        const response = await fetch("http://127.0.0.1:5000/predict", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+        resultDiv.innerText = `Prediction: ${data.digit}`;
+      } catch (err) {
+        resultDiv.innerText = "❌ Error connecting to server.";
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

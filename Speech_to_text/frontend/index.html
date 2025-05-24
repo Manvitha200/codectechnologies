@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speech to Text</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 1rem 2rem;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+
+    header img {
+      height: 40px;
+      margin-right: 1rem;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: #b794f4;
+    }
+
+    .container {
+      margin-top: 3rem;
+      text-align: center;
+    }
+
+    button {
+      background-color: #9f7aea;
+      border: none;
+      color: white;
+      padding: 0.75rem 2rem;
+      margin: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #805ad5;
+    }
+
+    .output {
+      margin-top: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1.5rem;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 600px;
+      color: #fbbf24;
+      font-size: 1.2rem;
+    }
+
+    .glow {
+      animation: glow 2s infinite ease-in-out;
+    }
+
+    @keyframes glow {
+      0% { text-shadow: 0 0 5px #fff, 0 0 10px #a855f7; }
+      50% { text-shadow: 0 0 15px #fff, 0 0 30px #a855f7; }
+      100% { text-shadow: 0 0 5px #fff, 0 0 10px #a855f7; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMwAAADACAMAAAB/Pny7AAAAaVBMVEX///8AAAAjHyD6+vq6urrLysrZ2dlVVVXm5eVraWqoqKjy8vKLiYrs6+t5eHh7e3uSkpKYmJhjY2NDQ0NRUFCioqLT09PBwcFzc3NdXV2Dg4M7Ojqwr68JAwUTEBExMDAZFxgpKCgdHh1xJ2VJAAAEkklEQVR4nO2ch3LyOhBGWfdKsHHDRZi8/0Ne2TS5YZM7CdI/35lJBhST0UHSelVgtwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiqOv8ekKvoHjrZBan67idkxaw/h0FbdjNmd3v4xbKSVDiRkuk8VqydivBoXjQuZDQEYGnHBapqqMHhxNf1yorExEbZmN0pO7jO77/vX3g65YWpldRBpVo/TkLpOXQe3v6uBJ3RVLJxNaN0rSNEa2J/a1u0xE5Ia7WEhj4q5YMhnzUJzsnlPVapyG9sazr91lzODAW8Y4RHcO8rWMf6iEN1vTrjbBs22EMaN3vx+Zv98LSyWzZ6QFxhWzaLjKN1W50M8UimYR4yPh3qd4NNM0osGQUUgmqyh5PuMyjIrRjVMdmQMj4bbCZWxzfIkyMnpBhfi0TqcTemVkwphS8fnc2oRKMt7aNY/QPL8so6YMv2mO6CXUlIkmqzKSpTPvyPBEc0jZv1RNmUHyL+MU4B2ZBSDzK/xrMvXaNcrI7LzYWbtEHZkNQEZWHunMc/Z/WwOQLJ3ZwnI643bFasoYsTskjrpiNWWm6YxkU4AtqBMANmx8KyITmgc3LlLntY8SMnpuEzUN/ylfZgEqyPhR01wXYzVKJutLAirIRNRq2sMmW75QARlLcOE25WTD7IECMgUJLlp7Xu5o3QmNr2WKz5/Q8L/FhuFNM7OUeUP+szMm04Yy+5l95itOsEL5YsD9CTUNuhmjZHWSJjOpYMMShY6MzWEKMk2xHMwUwMnt5inTnoPpYQZ1qGkQAVqlx4xxHt5nmKuwTGh+CTbtMR0fMlGL7KcBQDdka8TwuuV/b5kqtTa3TPrt/mbNfoBxHqQzrbZ9zHzR8Tdr9gNG0Ux7I5rJJ+MY1cDma/t9Rj6ZbkIjBoA3Ypl8Mn44yM1sM9ysI5OMbnaBK08asZe1l25Rg/9pwz+QScakbkvGHCQAPAB0x39ycje0j1wyFZ8i++1IJuIae0o2hAGZZCzGup2/8RpAzssurFh7NaeUSCaM+6UYZyDTF1nUprMvsQZDyRVPqH0Yvaaqm7SL0azpZ5p7uszdOXWvEjdx/TMFf1PTLWRVf5xUPzxWzvpRtMsuNNfLsoQNdqQjRhLNsfWIqBshu/xCjNN0x5V5sd3QtGF0l+c9okz9fT3/IwtOTNSvDunG3rZPQa/g7xuKxlf6Xr+IQ959e8kqeYFcMx/zSMwcVikM2OQd942EbjOE5EpFxI4SdbIeg9fKE/qUb7pEp/E9xiraW5rAbkuX7GwHss3MuM2RyPayPiHznTw4E9tPaxnWpz5IsCJNoyhK09SQrVl6Mt756VgceC3LWOMP09nlWSutuM7HF5PX8POifax8H6PFWbPJB9P6YaGPE2ZecLq0ZzcyXu1q+vmGk08SoOuZTZG/FmrDNP+T6vxfnBPNp2MDFPlc+TYZRYCMrPwrMv2n//KEgv7B4o6mEhhJ9wnA5NJW/ScBX584kZ1guPv94hyAAoTDL/XI1biVLKHst60AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgFX+A6pPRUx3Pq2mAAAAAElFTkSuQmCC" alt="Hando Logo">
+    <h1 class="glow">Speech to Text</h1>
+  </header>
+
+  <div class="container">
+    <button onclick="startListening()">🎤 Start Listening</button>
+    <button onclick="stopListening()">🛑 Stop</button>
+
+    <div class="output" id="transcript">Click start and speak something...</div>
+  </div>
+
+  <script>
+    let recognition;
+    let isListening = false;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = function(event) {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
+        }
+        document.getElementById("transcript").textContent = transcript;
+      };
+
+      recognition.onerror = function(event) {
+        document.getElementById("transcript").textContent = 'Error occurred: ' + event.error;
+      };
+    } else {
+      alert("Your browser does not support Speech Recognition. Try Chrome.");
+    }
+
+    function startListening() {
+      if (!isListening) {
+        recognition.start();
+        isListening = true;
+        document.getElementById("transcript").textContent = "Listening...";
+      }
+    }
+
+    function stopListening() {
+      if (isListening) {
+        recognition.stop();
+        isListening = false;
+        document.getElementById("transcript").textContent += "\n[Stopped]";
+      }
+    }
+  </script>
+</body>
+</html>
