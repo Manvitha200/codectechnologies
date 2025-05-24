@@ -1,4 +1,0 @@
-fastapi
-uvicorn
-speechrecognition
-python-multipart
